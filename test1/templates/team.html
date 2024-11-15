@@ -1,0 +1,65 @@
+<div class="container my-4">
+<h2 class="mb-4">Участники проекта</h2>
+<ul class="list-group">
+    <!-- Member 1 -->
+    <li class="list-group-item" onclick="toggleCard(this)">
+    <div class="d-flex align-items-center">
+        <img src="https://via.placeholder.com/50" alt="Avatar" class="rounded" style="border-radius: 5px;">
+        <span class="ms-3">Alice Johnson</span>
+    </div>
+    <div class="mt-3 collapse">
+        <hr>
+        <p><strong>Email:</strong> alice@example.com</p>
+        <p><strong>Role:</strong> Team Leader</p>
+        <p><strong>Skills:</strong> Management, Communication</p>
+    </div>
+    </li>
+
+    <!-- Member 2 -->
+    <li class="list-group-item" onclick="toggleCard(this)">
+    <div class="d-flex align-items-center">
+        <img src="https://via.placeholder.com/50" alt="Avatar" class="rounded" style="border-radius: 5px;">
+        <span class="ms-3">Bob Smith</span>
+    </div>
+    <div class="mt-3 collapse">
+        <hr>
+        <p><strong>Email:</strong> bob@example.com</p>
+        <p><strong>Role:</strong> Developer</p>
+        <p><strong>Skills:</strong> JavaScript, Python</p>
+    </div>
+    </li>
+
+    <!-- Member 3 -->
+    <li class="list-group-item" onclick="toggleCard(this)">
+    <div class="d-flex align-items-center">
+        <img src="https://via.placeholder.com/50" alt="Avatar" class="rounded" style="border-radius: 5px;">
+        <span class="ms-3">Charlie Davis</span>
+    </div>
+    <div class="mt-3 collapse">
+        <hr>
+        <p><strong>Email:</strong> charlie@example.com</p>
+        <p><strong>Role:</strong> Designer</p>
+        <p><strong>Skills:</strong> UX/UI Design, Figma</p>
+    </div>
+    </li>
+</ul>
+</div>
+
+<script>
+// Function to toggle the card details
+function toggleCard(item) {
+    // Find the collapse section within the clicked item
+    const details = item.querySelector('.collapse');
+    
+    // Toggle the Bootstrap 'show' class to expand or collapse the section
+    if (details.classList.contains('show')) {
+    details.classList.remove('show'); // Collapse the section
+    } else {
+    // Close other open details
+    document.querySelectorAll('.list-group-item .collapse').forEach(collapse => {
+        collapse.classList.remove('show');
+    });
+    details.classList.add('show'); // Expand the clicked section
+    }
+}
+</script>

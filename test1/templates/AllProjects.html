@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Проекты</h2>
+    <div class="list-group project-list">
+        <a type="button" href="1" class="list-group-item list-group-item-action position-relative">
+            <span>Проект 1</span>
+            <div class="arrow"></div>
+        </a>
+        <a type="button" class="list-group-item list-group-item-action position-relative">
+            <span>Проект 2</span>
+            <div class="arrow"></div>
+        </a>
+        <a type="button" class="list-group-item list-group-item-action position-relative">
+            <span>Проект 3</span>
+            <div class="arrow"></div>
+        </a>
+        <a type="button" class="list-group-item list-group-item-action position-relative">
+            <span>Проект 4</span>
+            <div class="arrow"></div>
+        </a>
+    </div>
+</div>
+
+<style>
+    .list-group-item {
+        position: relative;
+    }
+
+    .list-group-item .arrow {
+        position: absolute;
+        top: 50%; /* Center the arrow vertically */
+        right: 15px; /* Place it near the right edge */
+        transform: translateY(-50%); /* Adjust for perfect centering */
+        width: 0;
+        height: 0;
+        border-top: 6px solid transparent;
+        border-bottom: 6px solid transparent;
+        border-left: 6px solid gray; /* Right-pointing gray arrow */
+        opacity: 0; /* Hidden by default */
+        transition: opacity 0.3s ease; /* Smooth fade-in effect */
+    }
+
+    .list-group-item:hover .arrow {
+        opacity: 1; /* Arrow becomes visible on hover */
+    }
+</style>
+{% endblock %}
