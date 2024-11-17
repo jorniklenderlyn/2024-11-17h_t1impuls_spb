@@ -60,6 +60,9 @@ def process_sprints_from_dict(sprints_dict, selected_sprint_names):
         dict: Отфильтрованные данные по выбранным спринтам:
             - filtered_sprints: Данные только для выбранных спринтов.
     """
+    if isinstance(selected_sprint_names, str):
+        selected_sprint_names = [selected_sprint_names]
+    
     filtered_sprints = {
         name: {
             "entity": sprints_dict[name]["entity"],
@@ -198,6 +201,88 @@ def analyze_progress_bar(entities,history,sprints,day_offset,choosen_sprints,spr
     return percentages
 
 
+def calculate_burn_down_from_history(history_df, sprint_start_date, sprint_end_date):
+    """
+    Рассчитывает Burn Down Chart на основе истории изменений статусов сущностей.
+    
+    Args:
+        history_df (pd.DataFrame): История изменений с колонками 'entity_id', 'status', 'history_date'.
+        sprint_start_date (datetime): Дата начала спринта.
+        sprint_end_date (datetime): Дата окончания спринта.
+        
+    Returns:
+        dict: Данные для Burn Down Chart в виде словаря с датами и значениями.
+    """
+    # Преобразуем даты в формате истории
+    history_df['history_date'] = pd.to_datetime(history_df['history_date'])
+    
+    # Создаем диапазон дат спринта
+    dates_range = pd.date_range(start=sprint_start_date, end=sprint_end_date, freq='D')
+    burn_down_data = pd.DataFrame(dates_range, columns=['date'])
+    
+    # Рассчитываем метрики для каждой даты
+    for idx, current_date in enumerate(burn_down_data['date']):
+        # Учитываем все изменения до текущей даты включительно
+        history_up_to_date = history_df[history_df['history_date'] <= current_date]
+        
+        # Количество открытых задач (статусы, не содержащие закрывающих подстрок)
+        open_tasks = len(
+            history_up_to_date[~history_up_to_date['history_change'].str.contains(
+                'closed|rejectedByThePerformer|done', case=False, na=False
+            )]['entity_id'].unique()
+        )
+        
+        # Количество закрытых задач (статусы, содержащие закрывающие подстроки)
+        closed_tasks = len(
+            history_up_to_date[history_up_to_date['history_change'].str.contains(
+                'closed|rejectedByThePerformer|done', case=False, na=False
+            )]['entity_id'].unique()
+        )
+        
+        # Разность между открытыми и закрытыми задачами
+        remaining_tasks = open_tasks - closed_tasks
+        
+        # Заполняем данные для текущей даты
+        burn_down_data.loc[idx, 'open_tasks'] = open_tasks
+        burn_down_data.loc[idx, 'closed_tasks'] = closed_tasks
+        burn_down_data.loc[idx, 'remaining_tasks'] = remaining_tasks
+    
+    # Рассчитываем максимальное количество оставшихся задач
+    max_value_remaining_task = burn_down_data['remaining_tasks'][0]
+    descending_score=(max_value_remaining_task / 14)
+    # Формируем словарь с данными
+    burn_down_dict = {}
+    labels = []
+    remain_values = []
+    ideal_values = []
+    for idx, row in burn_down_data.iterrows():
+        day_number = idx + 1  # Номер дня (1, 2, 3, ...)
+        labels.append(day_number)
+        remain_values.append(row['remaining_tasks'])
+        ideal_value = max_value_remaining_task - descending_score
+        max_value_remaining_task = ideal_value
+        if(ideal_value<0):
+            ideal_value = 0
+        ideal_values.append(ideal_value)
+     
+    burn_down_dict['label'] = labels
+    burn_down_dict['remain_values'] = remain_values
+    burn_down_dict['ideal_values'] = ideal_values
+    return burn_down_dict
+
+
+def get_burn_down(entities,history,sprints,name_sprint):
+    all_sprints = parse_all_sprints(entities,history,sprints) 
+    dict = process_sprints_from_dict(all_sprints, name_sprint)
+    sprint_data = list(dict['filtered_sprints'].values())[0]
+    history = sprint_data['history']
+    start_date = sprint_data['sprint_row']['sprint_start_date']
+    end_date = sprint_data['sprint_row']['sprint_end_date']
+    burn_down_data = calculate_burn_down_from_history(history, start_date, end_date)
+    return burn_down_data
+
+
+
 # @api_view(['GET'])
 # def test(request):
     # print(res)
@@ -264,6 +349,15 @@ def get_sprint_bar_data(request, day=None, sprint=None):
     return JsonResponse({'data': res})
 
 
+def get_burn(request):
+    res = get_burn_down(settings.DUMMYBASE['entities'], 
+                        settings.DUMMYBASE['history'],
+                        settings.DUMMYBASE['sprints'],
+                        settings.SELECTEDSPRINT)
+
+    return JsonResponse({'data': res})
+
+
 def update_sprint(request):
     settings.SELECTEDSPRINT = request.GET['options']
     return redirect('/')
@@ -308,6 +402,11 @@ def getProject(request, pk=None):
     print(s, l_d)
     res[l_d] += 100 - s
 
+    resb = get_burn_down(settings.DUMMYBASE['entities'], 
+                        settings.DUMMYBASE['history'],
+                        settings.DUMMYBASE['sprints'],
+                        settings.SELECTEDSPRINT)
+
     return render(request, 'projectView.html', {'sprints': sprints,
                                                  'ready_work': round(res['ready_work'], 1),
                                                  'done': round(res['done'], 1),
@@ -317,4 +416,5 @@ def getProject(request, pk=None):
                                                  'is_data_exist': True,
                                                  'is_sprint_exist': True,
                                                  'q_days': 13,
-                                                 'day_numbers': [i for i in range(14)]})
+                                                 'day_numbers': [i for i in range(14)],
+                                                 'burn': resb})
