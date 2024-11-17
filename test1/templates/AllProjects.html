@@ -4,22 +4,12 @@
 <div class="container mt-4">
     <h2 class="mb-3">Проекты</h2>
     <div class="list-group project-list">
+        {% for sprint_name in sprints %}
         <a type="button" href="1" class="list-group-item list-group-item-action position-relative">
-            <span>Проект 1</span>
+            <span>{{ sprint_name }}</span>
             <div class="arrow"></div>
         </a>
-        <a type="button" class="list-group-item list-group-item-action position-relative">
-            <span>Проект 2</span>
-            <div class="arrow"></div>
-        </a>
-        <a type="button" class="list-group-item list-group-item-action position-relative">
-            <span>Проект 3</span>
-            <div class="arrow"></div>
-        </a>
-        <a type="button" class="list-group-item list-group-item-action position-relative">
-            <span>Проект 4</span>
-            <div class="arrow"></div>
-        </a>
+        {% endfor %}
     </div>
 </div>
 

@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Files Uploaded Successfully!</h2>
+    <a href="{% url 'uploads:upload_files' %}" class="btn btn-primary mt-3">Upload More Files</a>
+</div>
+{% endblock %}

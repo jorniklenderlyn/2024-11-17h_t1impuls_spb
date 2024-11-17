@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Range Slider with Chart</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .slider-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container mt-5">
+    <!-- Range Slider -->
+    <h2 class="mb-4">Range Slider</h2>
+    <div class="slider-container">
+      <input type="range" id="rangeSlider" min="0" max="3" step="1" value="0">
+      <div class="slider-labels">
+        <span id="label-0">Q1</span>
+        <span id="label-1">Q2</span>
+        <span id="label-2">Q3</span>
+        <span id="label-3">Q4</span>
+      </div>
+    </div>
+
+    <!-- Line Chart -->
+    <h2 class="mt-5 mb-4">Line Chart</h2>
+    <canvas id="lineChart" width="400" height="200"></canvas>
+  </div>
+
+  <script>
+    // Initialize Chart.js
+    const ctx = document.getElementById('lineChart').getContext('2d');
+    let lineChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['Month 1', 'Month 2', 'Month 3'], // Fixed labels for all quarters
+        datasets: [{
+          label: 'Progress',
+          data: [], // Empty initial data
+          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+          tension: 0.4,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top',
+          }
+        },
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Months'
+            }
+          },
+          y: {
+            title: {
+              display: true,
+              text: 'Value'
+            },
+            beginAtZero: true
+          }
+        }
+      }
+    });
+
+    // Function to fetch data from API
+    async function fetchChartData(quarter) {
+    try {
+        // Replace with your actual API endpoint
+        const response = await fetch(`http://127.0.0.1:8000/api/sprint-bar/0/Спринт 2024.3.1.NPP Shared Sprint/`, {
+        headers: {
+            'Accept': 'application/json', // Header for JSON response
+        }
+        });
+        if (!response.ok) throw new Error('Failed to fetch data');
+        const data = await response.json();
+        console.log('Fetched Data:', data); // Debugging output
+        return data; // Assuming the API response has { data: [], label: '' }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return { data: [], label: 'Error' }; // Default fallback data
+    }
+    }
+
+    // Update chart when the slider is moved
+    const rangeSlider = document.getElementById('rangeSlider');
+    rangeSlider.addEventListener('input', async () => {
+      const selectedIndex = rangeSlider.value;
+      const selectedQuarter = `Q${parseInt(selectedIndex) + 1}`; // Q1, Q2, Q3, Q4
+
+      // Fetch data from the API
+      const chartData = await fetchChartData(selectedQuarter);
+
+      // Update chart data
+      lineChart.data.datasets[0].data = chartData.data;
+      lineChart.data.datasets[0].label = chartData.label;
+      lineChart.update();
+    });
+
+    // Trigger an initial fetch for Q1
+    (async function initializeChart() {
+      const initialData = await fetchChartData('Q1');
+      lineChart.data.datasets[0].data = initialData.data;
+      lineChart.data.datasets[0].label = initialData.label;
+      lineChart.update();
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

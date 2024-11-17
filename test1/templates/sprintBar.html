@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Progress Bar with 4 Sections</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom colors for sections */
+        :root {
+            --c-redy-work: #6C8B9A;
+            --c-in-work: #F8D769;
+            --c-done: #55BAAD;
+            --c-canceld: #455152;
+        }
+        .progress-bar-1 {
+            background-color: var(--c-redy-work);
+        }
+        .progress-bar-2 {
+            background-color: var(--c-in-work);
+        }
+        .progress-bar-3 {
+            background-color: var(--c-done);
+        }
+        .progress-bar-4 {
+            background-color: var(--c-canceld);
+        }
+
+        .legend {
+            display: flex;
+            margin-bottom: 8px;
+        }
+        .legend div {
+            display: flex;
+            align-items: center;
+        }
+        .legend div span {
+            margin-left: 5px;
+        }
+        .legend-item {
+            margin-right: 10px;
+        }
+        .square {
+            width: 40px;
+            height: 20px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card p-2">
+    <h4 class="mb-2">Здоровье спринта</h4>
+
+    <!-- Legend for the colors -->
+    <div class="legend">
+        <div class="legend-item">
+            <div class="square" style="background-color: var(--c-redy-work);" id="legend-1"></div>
+            <span>К выполнению</span>
+        </div>
+        <div class="legend-item">
+            <div class="square" style="background-color: var(--c-in-work);" id="legend-2"></div>
+            <span>В работе</span>
+        </div>
+        <div class="legend-item">
+            <div class="square" style="background-color: var(--c-done);" id="legend-3"></div>
+            <span>Сделано</span>
+        </div>
+        <div class="legend-item">
+            <div class="square" style="background-color: var(--c-canceld);" id="legend-4"></div>
+            <span>Снято</span>
+        </div>
+    </div>
+    
+    <!-- Progress bar with dynamically defined sections -->
+    <div class="progress" style="height: 30px;">
+        <div class="progress-bar progress-bar-1" role="progressbar" style="width: 40%;" aria-valuenow="40" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar progress-bar-2" role="progressbar" style="width: 30%;" aria-valuenow="70" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar progress-bar-3" role="progressbar" style="width: 20%;" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="progress-bar progress-bar-4" role="progressbar" style="width: 10%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+
+    <!-- backlog changing -->
+    <div class="pogress-index">
+        <span>Бэклог изменён на <span id="backlog-value"></span></span>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Example of dynamic updates using JavaScript
+    // --c-redy-work: #6C8B9A;
+    //         --c-in-work: #F8D769;
+    //         --c-done: #55BAAD;
+    //         --c-canceld: #455152;
+    const section1Percentage = parseFloat('{{ ready_work }}'); // You can update these values dynamically
+    const section2Percentage = parseFloat('{{ in_work }}');
+    const section3Percentage = parseFloat('{{ done }}');
+    const section4Percentage = parseFloat('{{ canceled }}');
+
+    // Update the progress bar sections dynamically
+    document.querySelector('.progress-bar-1').style.width = section1Percentage + '%';
+    document.querySelector('.progress-bar-2').style.width = section2Percentage + '%';
+    document.querySelector('.progress-bar-3').style.width = section3Percentage + '%';
+    document.querySelector('.progress-bar-4').style.width = section4Percentage + '%';
+
+    // Update the legend dynamically
+    document.getElementById('legend-1').innerText = section1Percentage + '%';
+    document.getElementById('legend-2').innerText = section2Percentage + '%';
+    document.getElementById('legend-3').innerText = section3Percentage + '%';
+    document.getElementById('legend-4').innerText = section4Percentage + '%';
+
+    const backlogValue = parseFloat('{{ backlog_change }}');
+
+    document.getElementById('backlog-value').innerText = backlogValue + '%';
+</script>
+
+</body>
+</html>

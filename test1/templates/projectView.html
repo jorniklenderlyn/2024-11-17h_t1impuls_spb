@@ -9,12 +9,100 @@
         </div>
         <!-- </div> -->
         
-        <div class="col-md-10 ml-auto pt-3 px-4">
-            <div class="tab-content" id="tabContent">
-                <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">{% include "dashboard.html" %}</div>
-                <div class="tab-pane fade" id="team" role="tabpanel" aria-labelledby="team-tab">{% include "team.html" %}</div>
+        
+        <div class="col-md-10">
+            <div class=" ml-auto pt-3 px-4">
+                {% if is_sprint_exist %}
+                {% if is_data_exist %}
+                <div class="tab-content" id="tabContent">
+                    <div class="tab-pane fade show active" id="dashboard" role="tabpanel" aria-labelledby="dashboard-tab">{% include "dashboard.html" %}</div>
+                    <!-- <div class="tab-pane fade" id="team" role="tabpanel" aria-labelledby="team-tab">{ include "team.html" }</div> -->
+                </div>
+                {% endif %}
+                {% endif %}
+                {% if not is_data_exist %}
+                <div class="card p-4">Необходимо 
+                    <a class="" stile="display: none;"  type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    загрузить данные
+                    </a>
+                {% endif %}
+                {% if not is_sprint_exist %}
+                <div class="card p-4">Необходимо 
+                    <div class="filter-btn d-flex" id="expandButton">
+                        <div>
+                        <span class="mt-auto" data-feather="filter"></span>
+                        Фильтр</div>
+                        <div class="arrow" id="arrow"></div>
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
+        <div style="margin-left: calc(100% / 12 * 2 - 12px);">
+        {% if is_sprint_exist %}
+        {% if is_data_exist %}
+        {% include "slider.html" %}
+        {% endif %}
+        {% endif %}
+        </div>
+        
+
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                  Обновить данные. 
+                  <ul>
+                    <li>Необходимо 3 файла.</li>
+                    <li>Данные должны содержать файлы со словоми "entities", "history", "sprints" в названии.</li>
+                  </ul>
+                  
+                  
+                  <div class="container mt-5">
+                    <!-- <h2 class="mb-4">Добавление данных</h2> -->
+                    <form  action="/uploads/" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <!-- File input -->
+                        <div class="mb-3">
+                            <label for="id_file" class="form-label">Выбрать файлы</label>
+                            <input type="file" class="form-control" id="id_file" name="file" multiple required>
+                            <div id="fileList" class="mt-3"></div> <!-- File names will be shown here -->
+                        </div>
+                
+                        <!-- Submit button -->
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                            <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+                            <button type="submit" class="btn btn-primary">Загрузить</button>
+                          </div>
+                    </form>
+                </div>
+                
+                <script>
+                    // Show file names dynamically as the user selects files
+                    const fileInput = document.getElementById('id_file');
+                    const fileList = document.getElementById('fileList');
+                
+                    fileInput.addEventListener('change', function() {
+                        fileList.innerHTML = '';  // Clear previous file list
+                
+                        // Show the selected file names
+                        Array.from(fileInput.files).forEach(file => {
+                            const fileName = document.createElement('p');
+                            fileName.textContent = file.name;
+                            fileList.appendChild(fileName);
+                        });
+                    });
+                </script>
+                </div>
+              </div>
+            </div>
+          </div>
         
     </div>
 </div>

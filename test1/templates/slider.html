@@ -1,0 +1,124 @@
+<style>
+    .slider-bar {
+        box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
+        height: 60px; /* Adjust for bottom navbar height */
+        width: calc(100% - 203.462px);
+        background-color: var(--bs-light); /* Dark background */
+        color: white; /* White text */
+        position: fixed; /* Keep it fixed on the left */
+        bottom: 0; /* Start at the top */
+        margin-left: 203.462; /* Align to the left */
+        height: 68px; /* Fixed width for sidebar */
+        padding-top: 20px;
+        padding-left: 40px;
+        padding-right: 80px;
+    }
+    /* .content {
+        margin-left: 200px; /* Same as sidebar width */
+        /* padding: 20px; */
+    /* } */
+    /* .navbar { */
+        /* box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2); */
+    /* } */
+
+    .slider-container {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      width: calc(100%);
+    }
+</style>
+<div class="slider-container slider-bar">
+    <input type="range" id="rangeSlider" min="0" max="{{ q_days }}" step="1" value="0">
+    <div class="slider-labels">
+    {% for i in day_numbers %}
+    <span style="color: black" id="label-{{ i }}">День {{ i }}</span>
+    {% endfor %}
+    </div>
+</div>
+<script>
+    // Function to fetch data from API
+    async function fetchChartData(day) {
+    try {
+        // Replace with your actual API endpoint
+        const response = await fetch(`http://127.0.0.1:8000/api/sprint-bar/${day}/Спринт 2024.3.1.NPP Shared Sprint/`, {
+        headers: {
+            'Accept': 'application/json', // Header for JSON response
+        }
+        });
+        if (!response.ok) throw new Error('Failed to fetch data');
+        const data = await response.json();
+        console.log('Fetched Data:', data); // Debugging output
+        return data; // Assuming the API response has { data: [], label: '' }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return { data: [], label: 'Error' }; // Default fallback data
+    }
+    }
+
+    // Update chart when the slider is moved
+    const rangeSlider = document.getElementById('rangeSlider');
+    rangeSlider.addEventListener('input', async () => {
+      const selectedIndex = rangeSlider.value;
+      const selectedQuarter = parseInt(selectedIndex); // 1 - 14
+
+      // Fetch data from the API
+      const data = await fetchChartData(selectedQuarter);
+
+      const section1Percentage = String(data.data['ready_work']); // You can update these values dynamically
+        const section2Percentage = String(data.data['in_work']);
+        const section3Percentage = String(data.data['done']);
+        const section4Percentage = String(data.data['canceled']);
+
+        // Update the progress bar sections dynamically
+        document.querySelector('.progress-bar-1').style.width = section1Percentage + '%';
+        document.querySelector('.progress-bar-2').style.width = section2Percentage + '%';
+        document.querySelector('.progress-bar-3').style.width = section3Percentage + '%';
+        document.querySelector('.progress-bar-4').style.width = section4Percentage + '%';
+
+        // Update the legend dynamically
+        document.getElementById('legend-1').innerText = section1Percentage + '%';
+        document.getElementById('legend-2').innerText = section2Percentage + '%';
+        document.getElementById('legend-3').innerText = section3Percentage + '%';
+        document.getElementById('legend-4').innerText = section4Percentage + '%';
+
+        const backlogValue = String(data.data['backlog_change']);
+
+    document.getElementById('backlog-value').innerText = backlogValue + '%';
+      console.log(data, document.querySelector('.progress-bar-1').style.width);
+    });
+
+    // Trigger an initial fetch for Q1
+    (async function initializeChart() {
+      const initialData = await fetchChartData('0');
+
+      const section1Percentage = String(data.data['ready_work']); // You can update these values dynamically
+        const section2Percentage = String(data.data['in_work']);
+        const section3Percentage = String(data.data['done']);
+        const section4Percentage = String(data.data['canceled']);
+
+        // Update the progress bar sections dynamically
+        document.querySelector('.progress-bar-1').style.width = section1Percentage + '%';
+        document.querySelector('.progress-bar-2').style.width = section2Percentage + '%';
+        document.querySelector('.progress-bar-3').style.width = section3Percentage + '%';
+        document.querySelector('.progress-bar-4').style.width = section4Percentage + '%';
+
+        // Update the legend dynamically
+        document.getElementById('legend-1').innerText = section1Percentage + '%';
+        document.getElementById('legend-2').innerText = section2Percentage + '%';
+        document.getElementById('legend-3').innerText = section3Percentage + '%';
+        document.getElementById('legend-4').innerText = section4Percentage + '%';
+
+        const backlogValue = String(data.data['backlog_change']);
+
+    document.getElementById('backlog-value').innerText = backlogValue + '%';
+    })();
+  </script>
