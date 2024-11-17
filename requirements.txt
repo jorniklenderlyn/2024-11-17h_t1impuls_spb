@@ -1,0 +1,10 @@
+dj-rest-auth
+Django
+django-cors-headers
+django-rest-swagger
+djangorestframework
+djangorestframework-swagger
+pandas
+numpy
+python-dotenv
+requests
